@@ -1,0 +1,65 @@
+/* Phase 17 — Command palette, skill orbit, live code card */
+
+/* ---------- Command palette ---------- */
+.cmdk-backdrop{position:fixed;inset:0;z-index:400;display:grid;place-items:start center;padding:14vh 16px 16px;background:color-mix(in srgb,#05060a 55%,transparent);backdrop-filter:blur(6px);animation:p17-fade .18s ease-out}
+.cmdk{width:min(560px,100%);border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--paper);color:var(--ink);box-shadow:0 40px 90px rgba(0,0,0,.4),0 0 0 1px color-mix(in srgb,var(--accent) 22%,transparent);animation:p17-pop .22s cubic-bezier(.22,1,.36,1)}
+.cmdk-input{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);color:var(--muted)}
+.cmdk-input input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ink);font:600 16px Manrope,sans-serif}
+.cmdk-input input::placeholder{color:var(--muted);font-weight:500}
+.cmdk kbd{font:10px 'DM Mono',monospace;padding:3px 7px;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
+.cmdk-list{list-style:none;margin:0;padding:8px;max-height:min(46vh,360px);overflow-y:auto}
+.cmdk-list li{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;cursor:pointer;font:600 14px Manrope,sans-serif;transition:background .15s}
+.cmdk-list li span{flex:1}
+.cmdk-list li small{font:10px 'DM Mono',monospace;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.cmdk-list li.on{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.cmdk-list li.on svg{color:var(--accent)}
+.cmdk-list .cmdk-empty{cursor:default;color:var(--muted);font-weight:500}
+.cmdk-foot{display:flex;justify-content:space-between;gap:12px;padding:10px 16px;border-top:1px solid var(--line);font:10px 'DM Mono',monospace;color:var(--muted)}
+.cmdk-foot span{display:inline-flex;align-items:center;gap:6px}
+@keyframes p17-fade{from{opacity:0}to{opacity:1}}
+@keyframes p17-pop{from{opacity:0;transform:translateY(-12px) scale(.97)}to{opacity:1;transform:none}}
+@media(max-width:640px){.cmdk-backdrop{padding-top:8vh}.cmdk-foot span:last-child{display:none}}
+
+/* ---------- Skill orbit ---------- */
+.orbit-wrap{margin:6px 0 26px;text-align:center}
+.orbit-scene{--r:min(210px,32vw);position:relative;height:250px;perspective:900px;display:grid;place-items:center;overflow:hidden}
+.orbit-core{position:relative;z-index:2;width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font:800 34px Manrope,sans-serif;letter-spacing:-.08em;color:#fff;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent) 70%,#fff),var(--accent));box-shadow:0 0 0 10px color-mix(in srgb,var(--accent) 14%,transparent),0 0 60px color-mix(in srgb,var(--accent) 55%,transparent);animation:p17-core 3.6s ease-in-out infinite}
+.orbit-core span{color:var(--ink)}
+@keyframes p17-core{50%{transform:scale(1.07)}}
+.orbit-ring{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(-14deg);animation:p17-spin 30s linear infinite}
+.orbit-chip{position:absolute;left:50%;top:50%;transform-style:preserve-3d;transform:translate(-50%,-50%) rotateY(var(--a)) translateZ(var(--r))}
+.orbit-chip b{display:block;padding:8px 14px;border-radius:999px;font:600 11px 'DM Mono',monospace;letter-spacing:.04em;white-space:nowrap;color:var(--ink);background:color-mix(in srgb,var(--paper) 86%,transparent);border:1px solid var(--line);box-shadow:0 10px 26px rgba(0,0,0,.12);backdrop-filter:blur(8px);animation:p17-face 30s linear infinite;transition:border-color .25s,box-shadow .25s}
+.orbit-scene:hover .orbit-ring,.orbit-scene:hover .orbit-chip b{animation-play-state:paused}
+.orbit-chip b:hover{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent),0 10px 26px rgba(0,0,0,.14)}
+@keyframes p17-spin{to{transform:rotateX(-14deg) rotateY(360deg)}}
+@keyframes p17-face{from{transform:rotateY(calc(var(--a) * -1))}to{transform:rotateY(calc(var(--a) * -1 - 360deg))}}
+.orbit-hint{display:block;margin-top:2px;font:9px 'DM Mono',monospace;letter-spacing:1.4px;color:var(--muted)}
+
+/* ---------- Live code card ---------- */
+.codecard{margin-top:44px}
+.codecard-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px;font:9px 'DM Mono',monospace;letter-spacing:1.4px;color:var(--accent)}
+.codecard-label span:last-child{color:var(--muted)}
+.codecard-win{max-width:760px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:color-mix(in srgb,#0d0f14 94%,transparent);box-shadow:0 24px 60px rgba(0,0,0,.24),0 0 0 1px color-mix(in srgb,var(--accent) 14%,transparent);font-family:'DM Mono',ui-monospace,monospace}
+.codecard-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.codecard-bar>i{width:10px;height:10px;border-radius:50%;background:#ff5f57}.codecard-bar>i:nth-child(2){background:#febc2e}.codecard-bar>i:nth-child(3){background:#28c840}
+.codecard-tabs{display:flex;gap:4px;margin-left:14px}
+.codecard-tabs button{padding:5px 11px;border:0;border-radius:6px;background:transparent;color:#8b92a0;font:500 11px 'DM Mono',monospace;cursor:pointer;transition:background .2s,color .2s}
+.codecard-tabs button:hover{color:#fff}
+.codecard-tabs button.on{background:color-mix(in srgb,var(--accent) 24%,transparent);color:#fff}
+.codecard-file{margin-left:auto;font-size:10px;color:#5d6574}
+.codecard-code{margin:0;padding:18px 20px;min-height:150px;font:13px/1.8 'DM Mono',ui-monospace,monospace;color:#d6dbe6;white-space:pre-wrap;word-break:break-word;overflow-x:auto}
+.codecard-code .tk-k{color:#ff9d7e}.codecard-code .tk-s{color:#9be28a}.codecard-code .tk-c{color:#6b7385}.codecard-code .tk-n{color:#7fb7ff}
+.codecard-caret{display:inline-block;width:8px;height:1.1em;margin-left:1px;vertical-align:text-bottom;background:var(--accent);animation:p14-caret 1s steps(1) infinite}
+.codecard-run{display:flex;gap:16px;align-items:flex-start;padding:14px 20px 18px;border-top:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
+.codecard-run button{flex:none;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border:0;border-radius:999px;background:var(--accent);color:#fff;font:700 12px Manrope,sans-serif;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.codecard-run button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 24px color-mix(in srgb,var(--accent) 45%,transparent)}
+.codecard-run button:disabled{opacity:.5;cursor:default}
+.codecard-out{min-height:64px;font-size:12px;line-height:1.8;color:#7ee787}
+.codecard-out .dim{color:#5d6574}
+@media(max-width:640px){.orbit-scene{height:210px}.orbit-core{width:64px;height:64px;font-size:26px}.codecard-file{display:none}.codecard-run{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){
+  .orbit-wrap{display:none}
+  .cmdk,.cmdk-backdrop{animation:none}
+  .codecard-caret{animation:none}
+  .codecard-run button{transition:none}
+}

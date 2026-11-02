@@ -1,0 +1,9 @@
+name = "umar-sadiq-portfolio-api"
+main = "worker/index.js"
+compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "umar-portfolio-db"
+database_id = "bb8d74b5-19cb-4306-8293-7f56afbe523c"
+migrations_dir = "migrations"

@@ -1,0 +1,96 @@
+const baseHeaders = { "Content-Type": "application/json", "Cache-Control": "no-store" };
+// The Pages Function proxies /api on the same origin, so this service does not need CORS.
+const json = (data, status=200, extra={}) => new Response(JSON.stringify(data), {status, headers:{...baseHeaders,...extra}});
+// Best-effort per-isolate rate limiter (resets if the Worker restarts). Good against casual abuse.
+const hits = new Map();
+function limited(key, max, windowSec) {
+  const now = Date.now(), list = (hits.get(key) || []).filter(t => now - t < windowSec * 1000);
+  list.push(now); hits.set(key, list);
+  if (hits.size > 5000) for (const [k, v] of hits) if (!v.length || now - v[v.length - 1] > 3600000) hits.delete(k);
+  return list.length > max;
+}
+const encoder = new TextEncoder();
+const b64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+async function sha(value) { const digest = await crypto.subtle.digest('SHA-256', encoder.encode(value)); return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+function safeEqual(a,b) { if(typeof a!=='string'||typeof b!=='string'||a.length!==b.length)return false;let diff=0;for(let i=0;i<a.length;i++)diff|=a.charCodeAt(i)^b.charCodeAt(i);return diff===0; }
+function cookieValue(request, name) { const raw=request.headers.get('Cookie')||''; const item=raw.split(';').map(x=>x.trim()).find(x=>x.startsWith(name+'=')); if(!item)return ''; try{return decodeURIComponent(item.slice(name.length+1))}catch{return ''} }
+function sessionCookie(value,maxAge=604800,secure=true) { return `portfolio_session=${encodeURIComponent(value)}; Path=/; HttpOnly; ${secure?'Secure; ':''}SameSite=Strict; Max-Age=${maxAge}`; }
+async function authenticated(request,env) { const token=cookieValue(request,'portfolio_session'); if(!token)return false; const row=await env.DB.prepare('SELECT token_hash FROM sessions WHERE token_hash=? AND expires_at > ?').bind(await sha(token),Math.floor(Date.now()/1000)).first(); return !!row; }
+async function requireAuth(request,env) { return await authenticated(request,env)?null:json({error:'Unauthorized'},401); }
+async function readContent(env) { const row=await env.DB.prepare('SELECT content_json FROM portfolio_content WHERE id=1').first(); if(row?.content_json){try{return JSON.parse(row.content_json)}catch{}} return {profile:{name:'Umar Sadiq',role:'Software Engineer & Digital Creative',email:'info@adsondigitals.com',location:'Pakistan · Worldwide',intro:'I build useful products, thoughtful experiences and bold digital identities.'},projects:[],services:[],skills:[]}; }
+function publicContent(content) {
+ const pick=(obj,keys)=>Object.fromEntries(keys.filter(k=>obj?.[k]!==undefined).map(k=>[k,obj[k]]));
+ const visible=(item)=>item&& !['Draft','Hidden','Private'].includes(item.status);
+ return {
+  profile:pick(content.profile,['name','role','email','location','availability','availabilityNote','intro','website','linkedin','github','photo']),
+  projects:(Array.isArray(content.projects)?content.projects:[]).filter(visible).map(x=>pick(x,['id','name','title','slug','category','description','tone','mark','coverImage','previewVideo','previewGif','gallery','technologies','featured','status','role','year','overview','challenge','solution','results','projectUrl'])),
+  services:(Array.isArray(content.services)?content.services:[]).filter(visible).map(x=>pick(x,['id','name','title','description','desc','icon','tags','status'])),
+  skills:Array.isArray(content.skills)?content.skills:[],
+  blogPosts:(Array.isArray(content.blogPosts)?content.blogPosts:[]).filter(x=>x&&x.status==='Published').map(x=>pick(x,['id','title','slug','category','date','excerpt','content','coverImage','status'])),
+  testimonials:(Array.isArray(content.testimonials)?content.testimonials:[]).filter(x=>x&&x.approved===true).map(x=>pick(x,['id','author','client','role','company','quote','text','approved'])),
+  gallery:(Array.isArray(content.gallery)?content.gallery:[]).filter(visible).map(x=>pick(x,['id','src','title','caption','category','status'])),
+  conversations:(Array.isArray(content.conversations)?content.conversations:[]).filter(x=>x&&x.approved===true&&Array.isArray(x.messages)).map(x=>({id:x.id,approved:true,client:clean(x.client,80),role:clean(x.role,80),project:clean(x.project,100),messages:x.messages.slice(0,40).map(m=>({from:m.from==='me'?'me':'client',text:clean(m.text,1200)}))})),
+  design:pick(content.design,['accent','radius'])
+ };
+}
+async function readJson(request,maxBytes=50000) {
+ const type=(request.headers.get('Content-Type')||'').toLowerCase();
+ if(!type.includes('application/json')) throw new Error('INVALID_CONTENT_TYPE');
+ const declared=Number(request.headers.get('Content-Length')||0);
+ if(declared>maxBytes) throw new Error('PAYLOAD_TOO_LARGE');
+ const raw=await request.text();
+ if(new TextEncoder().encode(raw).byteLength>maxBytes) throw new Error('PAYLOAD_TOO_LARGE');
+ try { return JSON.parse(raw); } catch { throw new Error('INVALID_JSON'); }
+}
+function originAllowed(request) {
+  const origin = request.headers.get('Origin');
+
+  if (!origin) {
+    return request.headers.get('Sec-Fetch-Site') !== 'cross-site';
+  }
+
+  try {
+    const url = new URL(request.url);
+    const allowedOrigins = [
+      url.origin,
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://localhost:8787',
+      'http://127.0.0.1:8787'
+    ];
+
+    return allowedOrigins.includes(origin);
+  } catch {
+    return false;
+  }
+}
+function clean(value,max=2000){return typeof value==='string'?value.trim().slice(0,max):''}
+const oneLine=(v,n)=>String(v||'').replace(/[\r\n\t]+/g,' ').slice(0,n);
+// Instant alerts for new inquiries. Every channel is optional and failures never affect the visitor's form.
+async function notify(env,q){
+  const text=[`New website inquiry from ${oneLine(q.name,80)}`,`Email: ${q.email}`,q.phone?`Phone: ${oneLine(q.phone,50)}`:null,q.service?`Service: ${oneLine(q.service,120)}`:null,q.budget?`Budget: ${oneLine(q.budget,120)}`:null,'',q.message.slice(0,800)].filter(x=>typeof x==='string').join('\n');
+  const jobs=[];
+  if(env.RESEND_API_KEY&&env.ALERT_EMAIL_TO)jobs.push(fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({from:env.ALERT_EMAIL_FROM||'Portfolio <onboarding@resend.dev>',to:[env.ALERT_EMAIL_TO],reply_to:q.email,subject:`New inquiry: ${oneLine(q.name,60)}${q.service?' · '+oneLine(q.service,40):''}`,text})}).then(r=>{if(!r.ok)console.warn('Email alert failed',r.status)}));
+  if(env.TELEGRAM_BOT_TOKEN&&env.TELEGRAM_CHAT_ID)jobs.push(fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:env.TELEGRAM_CHAT_ID,text})}).then(r=>{if(!r.ok)console.warn('Telegram alert failed',r.status)}));
+  if(env.CALLMEBOT_PHONE&&env.CALLMEBOT_APIKEY)jobs.push(fetch(`https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(env.CALLMEBOT_PHONE)}&text=${encodeURIComponent(text.slice(0,900))}&apikey=${encodeURIComponent(env.CALLMEBOT_APIKEY)}`).then(r=>{if(!r.ok)console.warn('WhatsApp alert failed',r.status)}));
+  await Promise.allSettled(jobs.map(j=>j.catch(e=>console.warn('Alert error',e&&e.message))));
+}
+export default { async fetch(request,env,ctx) {
+ if(request.method==='OPTIONS')return new Response(null,{status:204});
+ const url=new URL(request.url);
+ try {
+  if(url.pathname==='/api/health'&&request.method==='GET'){await env.DB.prepare('SELECT 1 AS ok').first();return json({ok:true,service:'portfolio-api',database:'connected'});}
+  if(url.pathname==='/api/github'&&request.method==='GET'){const login=clean(env.GITHUB_USERNAME,39).replace(/[^a-zA-Z0-9-]/g,'');if(!login)return json({configured:false,login:null,repos:[]});const headers={'Accept':'application/vnd.github+json','User-Agent':'Umar-Sadiq-Portfolio'};const [userRes,reposRes]=await Promise.all([fetch(`https://api.github.com/users/${encodeURIComponent(login)}`,{headers}),fetch(`https://api.github.com/users/${encodeURIComponent(login)}/repos?sort=updated&per_page=3&type=owner`,{headers})]);if(!userRes.ok||!reposRes.ok)return json({configured:true,login,repos:[],error:'GitHub profile temporarily unavailable'},502);const user=await userRes.json(),repos=await reposRes.json();let contributions=null;if(env.GITHUB_TOKEN){const q='query($login:String!){user(login:$login){contributionsCollection{contributionCalendar{totalContributions weeks{contributionDays{contributionCount date color}}}}}}';const gr=await fetch('https://api.github.com/graphql',{method:'POST',headers:{...headers,'Authorization':`Bearer ${env.GITHUB_TOKEN}`,'Content-Type':'application/json'},body:JSON.stringify({query:q,variables:{login}})});if(gr.ok){const gd=await gr.json();contributions=gd.data?.user?.contributionsCollection?.contributionCalendar||null;}}return json({configured:true,login:user.login,url:user.html_url,public_repos:user.public_repos,followers:user.followers,contributions,repos:repos.map(r=>({name:r.name,description:r.description,html_url:r.html_url,language:r.language,stars:r.stargazers_count}))},200,{'Cache-Control':'public, max-age=1800'}); }
+  if(url.pathname==='/api/auth/login'&&request.method==='POST'){if(limited('login:'+(request.headers.get('CF-Connecting-IP')||'x'),6,600))return json({error:'Too many attempts. Please wait a few minutes and try again.'},429);if(!originAllowed(request))return json({error:'Cross-origin request blocked'},403);const body=await readJson(request,4096);if(!body||typeof body!=='object'||Array.isArray(body)||typeof body.password!=='string'||!env.ADMIN_PASSWORD)return json({error:'Invalid credentials'},401);if(!safeEqual(await sha(body.password),await sha(env.ADMIN_PASSWORD)))return json({error:'Invalid credentials'},401);const token=b64(crypto.getRandomValues(new Uint8Array(32))),tokenHash=await sha(token),now=Math.floor(Date.now()/1000);await env.DB.prepare('DELETE FROM sessions WHERE expires_at <= ?').bind(now).run();await env.DB.prepare('INSERT INTO sessions (token_hash,expires_at,created_at) VALUES (?,?,?)').bind(tokenHash,now+604800,now).run();return json({ok:true},200,{'Set-Cookie':sessionCookie(token,604800,url.protocol==='https:')});}
+  if(url.pathname==='/api/auth/me'&&request.method==='GET')return json({authenticated:await authenticated(request,env)});
+  if(url.pathname==='/api/auth/logout'&&request.method==='POST'){if(!originAllowed(request))return json({error:'Cross-origin request blocked'},403);const token=cookieValue(request,'portfolio_session');if(token)await env.DB.prepare('DELETE FROM sessions WHERE token_hash=?').bind(await sha(token)).run();return json({ok:true},200,{'Set-Cookie':sessionCookie('',0,url.protocol==='https:')});}
+  if(url.pathname==='/api/content'&&request.method==='GET'){const content=await readContent(env);return json(await authenticated(request,env)?content:publicContent(content));}
+  if(url.pathname==='/api/content'&&request.method==='PUT'){if(!originAllowed(request))return json({error:'Cross-origin request blocked'},403);const denied=await requireAuth(request,env);if(denied)return denied;const content=await readJson(request,500000);if(!content||typeof content!=='object'||!content.profile||!Array.isArray(content.projects)||!Array.isArray(content.services)||!Array.isArray(content.skills))return json({error:'Invalid content structure'},400);const serialized=JSON.stringify(content);if(serialized.length>500000)return json({error:'Content exceeds 500 KB limit'},413);await env.DB.prepare(`INSERT INTO portfolio_content(id,content_json,updated_at) VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET content_json=excluded.content_json,updated_at=excluded.updated_at`).bind(serialized,Math.floor(Date.now()/1000)).run();return json({ok:true,savedAt:Math.floor(Date.now()/1000)});}
+  if(url.pathname==='/api/inquiries'&&request.method==='POST'){const body=await readJson(request,12000);if(!body||typeof body!=='object'||Array.isArray(body))return json({error:'Invalid request body'},400);if(clean(body.website,200))return json({ok:true});const name=clean(body.name,100),email=clean(body.email,160).toLowerCase(),message=clean(body.message,5000);if(name.length<2||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||message.length<10)return json({error:'Please provide a valid name, email and message (at least 10 characters).'},400);const now=Math.floor(Date.now()/1000),ip=request.headers.get('CF-Connecting-IP')||'unknown',ipHash=await sha(ip+'|'+(env.RATE_LIMIT_SALT||'portfolio'));const count=await env.DB.prepare('SELECT COUNT(*) AS total FROM inquiries WHERE ip_hash=? AND created_at>?').bind(ipHash,now-3600).first();if((count?.total||0)>=5)return json({error:'Too many messages from this connection. Please try again later.'},429);const id=crypto.randomUUID();await env.DB.prepare("INSERT INTO inquiries(id,name,email,phone,service,budget,message,status,notes,created_at,updated_at,ip_hash) VALUES(?,?,?,?,?,?,?,'New','',?,?,?)").bind(id,name,email,clean(body.phone,50),clean(body.service,120),clean(body.budget,120),message,now,now,ipHash).run();if(ctx&&ctx.waitUntil)ctx.waitUntil(notify(env,{name,email,phone:clean(body.phone,50),service:clean(body.service,120),budget:clean(body.budget,120),message}));return json({ok:true,id},201);}
+  if(url.pathname==='/api/inquiries'&&request.method==='GET'){const denied=await requireAuth(request,env);if(denied)return denied;const result=await env.DB.prepare('SELECT id,name,email,phone,service,budget,message,status,notes,created_at,updated_at FROM inquiries ORDER BY created_at DESC LIMIT 500').all();return json({inquiries:result.results||[]});}
+  if(url.pathname==='/api/analytics/event'&&request.method==='POST'){if(limited('ev:'+(request.headers.get('CF-Connecting-IP')||'x'),90,60))return json({ok:true},202);const body=await readJson(request,4096);if(!body||typeof body!=='object'||Array.isArray(body))return json({error:'Invalid request body'},400);const allowed=['page_view','project_view','blog_view','contact_click'];const eventType=clean(body.eventType,30),path=clean(body.path,180)||'/';if(!allowed.includes(eventType)||!path.startsWith('/')||path.startsWith('//'))return json({error:'Invalid analytics event'},400);const now=Math.floor(Date.now()/1000);await env.DB.prepare('INSERT INTO portfolio_events(event_type,path,created_at) VALUES(?,?,?)').bind(eventType,path,now).run();return json({ok:true},202);}
+  if(url.pathname==='/api/analytics/summary'&&request.method==='GET'){const denied=await requireAuth(request,env);if(denied)return denied;const since=Math.floor(Date.now()/1000)-30*86400;const totals=await env.DB.prepare('SELECT COUNT(*) AS total,COUNT(DISTINCT path) AS unique_paths FROM portfolio_events WHERE created_at>?').bind(since).first();const byDay=await env.DB.prepare("SELECT strftime('%Y-%m-%d',created_at,'unixepoch') AS day,COUNT(*) AS views FROM portfolio_events WHERE created_at>? AND event_type='page_view' GROUP BY day ORDER BY day ASC").bind(since).all();const topPages=await env.DB.prepare('SELECT path,COUNT(*) AS views FROM portfolio_events WHERE created_at>? GROUP BY path ORDER BY views DESC LIMIT 8').bind(since).all();const byType=await env.DB.prepare('SELECT event_type,COUNT(*) AS total FROM portfolio_events WHERE created_at>? GROUP BY event_type').bind(since).all();return json({periodDays:30,totalEvents:totals?.total||0,uniquePaths:totals?.unique_paths||0,byDay:byDay.results||[],topPages:topPages.results||[],byType:byType.results||[]});}
+  const inquiryMatch=url.pathname.match(/^\/api\/inquiries\/([a-f0-9-]+)$/i);if(inquiryMatch&&request.method==='PATCH'){if(!originAllowed(request))return json({error:'Cross-origin request blocked'},403);const denied=await requireAuth(request,env);if(denied)return denied;const body=await readJson(request,8192);if(!body||typeof body!=='object'||Array.isArray(body))return json({error:'Invalid request body'},400);const status=clean(body.status,30),notes=clean(body.notes,3000);if(!['New','Contacted','In Progress','Won','Closed'].includes(status))return json({error:'Invalid inquiry status'},400);const now=Math.floor(Date.now()/1000);const result=await env.DB.prepare('UPDATE inquiries SET status=?,notes=?,updated_at=? WHERE id=?').bind(status,notes,now,inquiryMatch[1]).run();if(!result.meta?.changes)return json({error:'Inquiry not found'},404);return json({ok:true});}
+  return json({error:'Not found'},404);
+ }catch(err){if(err?.message==='INVALID_CONTENT_TYPE')return json({error:'Content-Type must be application/json'},415);if(err?.message==='INVALID_JSON')return json({error:'Invalid JSON body'},400);if(err?.message==='PAYLOAD_TOO_LARGE')return json({error:'Request body is too large'},413);return json({error:'Internal server error'},500);}
+ }};

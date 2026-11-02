@@ -1,0 +1,29 @@
+{
+  "name": "umar-sadiq-portfolio",
+  "private": true,
+  "version": "18.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/generate-seo.mjs && vite build",
+    "preview": "vite preview",
+    "preflight": "node scripts/preflight.mjs",
+    "api:dev": "wrangler dev --config wrangler.api.toml --local --persist-to .wrangler/state",
+    "api:deploy": "wrangler deploy --config wrangler.api.toml"
+  },
+  "dependencies": {
+    "framer-motion": "^11.18.2",
+    "gsap": "^3.12.7",
+    "lenis": "^1.1.20",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "vite": "^6.0.0",
+    "wrangler": "^3.99.0"
+  }
+}

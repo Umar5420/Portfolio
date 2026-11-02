@@ -1,0 +1,209 @@
+/* ==========================================================================
+   Phase 11 — Theme Studio
+   Two independent axes, both chosen by the visitor:
+     data-theme  → colour mood  (light, dark, morning, evening, ocean, rose, violet, aurora)
+     data-style  → surface style (classic, glassy, soft, neon)
+   `auto` is resolved in JS to one of the moods above by time of day.
+   ========================================================================== */
+
+/* ---------- shared tokens ---------- */
+:root {
+  --accent-2: #4c62e8;
+  --shadow-ink: 28 27 26;
+  --r: var(--cms-radius, 8px);          /* card radius, set per style */
+  --surface: var(--paper);              /* card background */
+  --surface-line: var(--line);
+  --blur: 0px;
+  --card-shadow: none;
+  --ambient: 0;                         /* ambient background strength */
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --on-accent: #fff;                    /* readable text on top of --accent */
+}
+
+/* Site accent can be overridden from Admin → Design Studio, but only on the two
+   default moods. Every other mood owns its accent. */
+:root,
+:root[data-theme="light"] { --accent: var(--cms-accent, #ff7655); }
+:root[data-theme="dark"]  { --accent: var(--cms-accent, #ff7655); --accent-2: #8290ff; --on-accent: #1a0f0c; }
+
+/* ---------- colour moods ---------- */
+:root[data-theme="morning"] {
+  color-scheme: light;
+  --bg: #fff3e1; --paper: #fffaf0; --card: #fffdf7;
+  --ink: #2a1f14; --muted: #86704f; --line: rgba(42, 31, 20, .16);
+  --accent: #e0720f; --accent-2: #f5b73b; --blue: #c9791c; --lav: #ffd9a0; --lime: #ffe58a;
+  --shadow-ink: 120 70 10; --on-accent: #2a1405;
+}
+:root[data-theme="evening"] {
+  color-scheme: dark;
+  --bg: #1f1630; --paper: #2a1d3d; --card: #2e2142;
+  --ink: #fdeee3; --muted: #c6aebd; --line: rgba(255, 226, 210, .17);
+  --accent: #ff9a5c; --accent-2: #e8609f; --blue: #ffb38a; --lav: #d79bd4; --lime: #ffd27a;
+  --shadow-ink: 0 0 0; --on-accent: #2a1208;
+}
+:root[data-theme="ocean"] {
+  color-scheme: light;
+  --bg: #e7f1fc; --paper: #f4f9ff; --card: #ffffff;
+  --ink: #0e2038; --muted: #546f8c; --line: rgba(14, 32, 56, .15);
+  --accent: #1f6bff; --accent-2: #11b4e4; --blue: #1f6bff; --lav: #b9d4ff; --lime: #a8f0e6;
+  --shadow-ink: 20 60 140;
+}
+:root[data-theme="rose"] {
+  color-scheme: light;
+  --bg: #fdedf3; --paper: #fff6f9; --card: #ffffff;
+  --ink: #3a1226; --muted: #8e5a72; --line: rgba(58, 18, 38, .15);
+  --accent: #d62a67; --accent-2: #ff8ab4; --blue: #d62a67; --lav: #ffc6dc; --lime: #ffd9e6;
+  --shadow-ink: 150 30 80;
+}
+:root[data-theme="violet"] {
+  color-scheme: light;
+  --bg: #efeaff; --paper: #f8f5ff; --card: #ffffff;
+  --ink: #1f1340; --muted: #6a5f9d; --line: rgba(31, 19, 64, .15);
+  --accent: #7a45ff; --accent-2: #c75bff; --blue: #7a45ff; --lav: #d6c8ff; --lime: #e6d4ff;
+  --shadow-ink: 80 40 180;
+}
+:root[data-theme="aurora"] {
+  color-scheme: dark;
+  --bg: #0a1020; --paper: #101a30; --card: #12203a;
+  --ink: #e9f5ff; --muted: #8fa8c4; --line: rgba(160, 220, 255, .16);
+  --accent: #3de6c4; --accent-2: #8a6bff; --blue: #7aa8ff; --lav: #8a6bff; --lime: #3de6c4;
+  --shadow-ink: 0 0 0; --on-accent: #04121a;
+}
+:root[data-theme="dark"], :root[data-theme="evening"], :root[data-theme="aurora"] { color-scheme: dark; }
+:root[data-theme] { background: var(--bg); }
+:root[data-theme] body { background: transparent; color: var(--ink); }
+
+/* buttons that hard-code white text keep contrast on bright accents */
+:root[data-theme="aurora"] .button-primary:hover,
+:root[data-theme="aurora"] .contact-button:hover { color: #04121a; }
+
+/* ---------- style modes ---------- */
+/* classic = the original design, untouched. */
+:root[data-style="classic"] { --ambient: 0; }
+
+/* ----- glassy ----- */
+:root[data-style="glassy"] {
+  --r: 22px;
+  --surface: color-mix(in srgb, var(--paper) 52%, transparent);
+  --surface-line: color-mix(in srgb, var(--ink) 14%, transparent);
+  --blur: 22px;
+  --card-shadow: 0 18px 50px rgb(var(--shadow-ink) / .14), inset 0 1px 0 rgb(255 255 255 / .35);
+  --ambient: 1;
+}
+/* ----- soft ----- */
+:root[data-style="soft"] {
+  --r: 26px;
+  --surface: var(--card);
+  --surface-line: transparent;
+  --card-shadow: 0 14px 34px rgb(var(--shadow-ink) / .10), 0 2px 6px rgb(var(--shadow-ink) / .06);
+  --ambient: .55;
+}
+/* ----- neon ----- */
+:root[data-style="neon"] {
+  --r: 3px;
+  --surface: color-mix(in srgb, var(--bg) 82%, var(--accent) 6%);
+  --surface-line: color-mix(in srgb, var(--accent) 55%, transparent);
+  --card-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent), 0 0 26px color-mix(in srgb, var(--accent) 22%, transparent);
+  --ambient: .8;
+}
+
+/* surfaces shared by every non-classic style */
+:root:not([data-style="classic"]) :is(
+  .service-card, .phase10-content-card, .portrait-sticker, .journey-guide,
+  .timeline-item, .about-facts > div, .project-search,
+  .project-controls select, .project-filters button, .gallery-item, .chat-window,
+  .chat-person, .studio-panel, .greeting-chip, .inquiry-form, .project-detail-facts > div
+) {
+  background: var(--surface);
+  border: 1px solid var(--surface-line);
+  border-radius: var(--r);
+  box-shadow: var(--card-shadow);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4);
+  backdrop-filter: blur(var(--blur)) saturate(1.4);
+}
+:root:not([data-style="classic"]) .site-header {
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  -webkit-backdrop-filter: blur(var(--blur, 16px)) saturate(1.4);
+  backdrop-filter: blur(var(--blur, 16px)) saturate(1.4);
+}
+:root:not([data-style="classic"]) .service-grid { gap: 16px; border: 0; background: transparent; }
+:root:not([data-style="classic"]) .service-card { border-width: 1px; }
+:root:not([data-style="classic"]) .timeline-item { padding: 22px 26px; margin-bottom: 14px; }
+:root:not([data-style="classic"]) .projects-grid .project-card { border-radius: var(--r); overflow: hidden; }
+:root:not([data-style="classic"]) .project-art { border-radius: calc(var(--r) - 4px); }
+:root:not([data-style="classic"]) :is(.button-primary, .contact-button, .nav-contact, .guide-action) { border-radius: 999px; }
+:root:not([data-style="classic"]) :is(.theme-toggle, .menu-toggle) { box-shadow: var(--card-shadow); }
+:root[data-style="soft"] :is(.service-card, .phase10-content-card, .gallery-item, .chat-window):hover { transform: translateY(-4px); }
+
+/* neon extras */
+:root[data-style="neon"] :is(h1, h2) em,
+:root[data-style="neon"] .headline-italic,
+:root[data-style="neon"] .accent-dot { text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 70%, transparent); }
+:root[data-style="neon"] .button-primary { background: transparent; color: var(--accent); border: 1px solid var(--accent); box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent); }
+:root[data-style="neon"] .button-primary:hover { background: var(--accent); color: var(--bg); }
+:root[data-style="neon"] body { letter-spacing: .005em; }
+:root[data-style="neon"] .scroll-progress span { box-shadow: 0 0 12px var(--accent); }
+
+/* glassy extras: gradient sheen on borders */
+:root[data-style="glassy"] :is(.service-card, .phase10-content-card, .gallery-item, .chat-window):hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* ---------- ambient background (blobs behind the page) ---------- */
+.ambient {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+  opacity: var(--ambient, 0); transition: opacity .6s;
+}
+.ambient i {
+  position: absolute; width: 46vmax; height: 46vmax; border-radius: 50%;
+  filter: blur(70px); opacity: .42; will-change: transform;
+  animation: ambient-drift 26s ease-in-out infinite alternate;
+}
+.ambient i:nth-child(1) { left: -12vmax; top: -10vmax; background: var(--accent); }
+.ambient i:nth-child(2) { right: -14vmax; top: 18vh; background: var(--accent-2); animation-duration: 32s; animation-delay: -9s; }
+.ambient i:nth-child(3) { left: 22vw; bottom: -22vmax; background: color-mix(in srgb, var(--accent) 55%, var(--accent-2)); animation-duration: 38s; animation-delay: -17s; opacity: .3; }
+html[data-ambient="off"] .ambient { opacity: 0; }
+html[data-ambient="off"] .ambient i { animation: none; }
+@keyframes ambient-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(7vmax, 5vmax, 0) scale(1.14); }
+  100% { transform: translate3d(-5vmax, 9vmax, 0) scale(.94); }
+}
+
+/* ---------- smooth theme change: circular reveal from the clicked control ---------- */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { z-index: 2147483646; }
+body { transition: background .45s, color .45s; }
+.service-card, .phase10-content-card, .gallery-item, .chat-window, .site-header, .journey-guide { transition: background .45s, border-color .45s, box-shadow .45s, transform .35s var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient i { animation: none; }
+}
+
+/* ---------- fixes: sections that hard-coded colours in earlier phases ---------- */
+/* Skills band is inverted (ink background); tags used a fixed light text colour, unreadable in dark moods. */
+.skills-cloud span { color: var(--bg); border-color: color-mix(in srgb, var(--bg) 30%, transparent); }
+:root:not([data-style="classic"]) .skills-cloud span { background: color-mix(in srgb, var(--bg) 10%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+:root[data-style="neon"] .skills-cloud span { border-color: var(--accent); box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 28%, transparent); }
+
+/* Contact: the form used white text on a fixed beige band, so it was unreadable. Now it follows the mood. */
+.contact-section { background: color-mix(in srgb, var(--ink) 7%, var(--bg)); color: var(--ink); }
+.contact-section .section-kicker, .contact-content h2 em, .contact-content h2 span { color: var(--accent); }
+.contact-bottom { color: var(--muted); }
+.inquiry-form label { color: var(--muted); }
+.inquiry-fields input, .inquiry-fields select, .inquiry-fields textarea { border-color: var(--line); background: var(--paper); color: var(--ink); outline-color: var(--accent); }
+.inquiry-fields input::placeholder, .inquiry-fields textarea::placeholder { color: var(--muted); opacity: .75; }
+.inquiry-success { color: var(--ink); background: var(--paper); border-color: var(--line); }
+.inquiry-success button { color: var(--accent); }
+.inquiry-error { color: #d23b2b; }
+.contact-button { background: var(--ink); color: var(--bg); }
+.contact-button:hover { background: var(--accent); color: var(--on-accent); }
+:root:not([data-style="classic"]) .inquiry-form { padding: 22px; background: color-mix(in srgb, var(--paper) 70%, transparent); }
+
+/* Let the ambient glow show through bands that painted an opaque background. */
+:root:not([data-style="classic"]) :is(.phase10-section, .phase10-testimonials, .site-footer) { background: transparent; }
+:root:not([data-style="classic"]) .contact-section { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+
+/* contrast: small mono labels that used fixed greys */
+.skills-section .section-side, .skills-content > p { color: color-mix(in srgb, var(--bg) 66%, transparent); }
+.contact-section .section-side, .contact-overline { color: var(--muted); }

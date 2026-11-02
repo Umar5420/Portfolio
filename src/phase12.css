@@ -1,0 +1,80 @@
+/* Phase 12: living portrait, walking guide, about photo, ribbon */
+
+/* ---- hero portrait: entrance, breathing, photo swap ---- */
+.portrait-photo-wrap{animation:p12-rise 1.3s cubic-bezier(.22,1,.36,1) both}
+.portrait-breathe{position:absolute;inset:0;transform-origin:50% 92%;animation:p12-breathe 6.5s ease-in-out infinite}
+.portrait-breathe .portrait-photo{position:absolute;inset:0}
+.portrait-photo-alt{opacity:0;object-position:center 34%!important;animation:p12-swap 15s ease-in-out infinite}
+.portrait-photo-wrap::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(120% 80% at 50% 0%,transparent 55%,color-mix(in srgb,var(--accent) 22%,transparent));mix-blend-mode:soft-light}
+.portrait-orbit.orbit-one{animation:p12-spin 26s linear infinite}
+.portrait-orbit.orbit-two{animation:p12-spin 38s linear infinite reverse}
+.portrait-sticker{animation:p12-float 5s ease-in-out infinite}
+.sticker-bottom{animation-delay:-2.2s}
+.portrait-cross{animation:p12-twirl 9s linear infinite}
+.cross-b{animation-direction:reverse;animation-duration:12s}
+@keyframes p12-rise{from{clip-path:inset(100% 0 0 0 round 48% 48% 5px 5px);transform:translateY(40px)}to{clip-path:inset(0 0 0 0 round 48% 48% 5px 5px);transform:none}}
+@keyframes p12-breathe{0%,100%{transform:scale(1.04) translateY(0)}50%{transform:scale(1.085) translateY(-1.6%)}}
+@keyframes p12-swap{0%,38%{opacity:0}48%,86%{opacity:1}96%,100%{opacity:0}}
+@keyframes p12-spin{to{transform:rotate(332deg)}}
+@keyframes p12-float{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@keyframes p12-twirl{to{transform:rotate(360deg)}}
+
+/* ---- ribbon ---- */
+.ribbon{overflow:hidden;border-block:1px solid var(--line);background:var(--ink);color:var(--bg);transform:rotate(-1.2deg);margin:-14px -2vw 24px;position:relative;z-index:3}
+.ribbon-track{display:flex;gap:28px;width:max-content;padding:15px 0;font:700 15px Manrope;letter-spacing:.04em;animation:p12-marquee 38s linear infinite}
+.ribbon-track span{white-space:nowrap}.ribbon-track i{color:var(--accent);font-style:normal}
+.ribbon:hover .ribbon-track{animation-play-state:paused}
+@keyframes p12-marquee{to{transform:translateX(-25%)}}
+
+/* ---- about photo ---- */
+.about-grid>div:first-child{display:flex;flex-direction:column;gap:38px}
+.about-photo{margin:0;position:relative;width:min(100%,380px);filter:drop-shadow(14px 16px 0 var(--accent))}
+.about-photo-frame{position:relative;aspect-ratio:2/3;overflow:hidden;border-radius:46% 46% 6px 6px;background:#d9d0c4;transition:transform .25s ease-out;transform-style:preserve-3d}
+.about-photo-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%;will-change:transform}
+.about-photo-shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.3),transparent 60%);transform:translateX(-130%);animation:shine 8s ease-in-out infinite 2s}
+.about-photo-tag{position:absolute;left:-12px;bottom:26px;background:var(--paper);border:1px solid var(--line);padding:10px 14px;font:500 10px 'DM Mono';letter-spacing:.06em;display:flex;align-items:center;gap:8px;box-shadow:0 8px 25px rgba(0,0,0,.08);animation:p12-float 5.5s ease-in-out infinite}
+
+/* ---- the walking guide ---- */
+.walker{position:fixed;left:0;bottom:0;z-index:15;width:84px;height:150px;pointer-events:none;opacity:0;transition:opacity .5s;will-change:transform}
+.walker.is-on{opacity:1}
+.walker-figure{position:absolute;left:0;right:0;bottom:8px;display:flex;flex-direction:column;align-items:center;animation:w-breathe 3.4s ease-in-out infinite}
+.walker-head{width:58px;height:58px;border-radius:50%;overflow:hidden;border:3px solid var(--ink);background:#d9d0c4;margin-bottom:-6px;position:relative;z-index:2;box-shadow:3px 3px 0 var(--accent);transition:rotate .3s}
+.walker-head img{width:100%;height:100%;object-fit:cover;object-position:center 18%;transform:scale(1.35);transform-origin:50% 22%}
+.walker[data-dir="r"] .walker-head{rotate:4deg}.walker[data-dir="l"] .walker-head{rotate:-4deg}
+.walker-body{display:block;overflow:visible}
+.w-leg,.w-arm{transform-origin:40px 52px}
+.w-arm{transform-origin:40px 20px}
+.walker-shadow{position:absolute;left:14px;right:14px;bottom:2px;height:8px;border-radius:50%;background:rgba(0,0,0,.22);filter:blur(2px)}
+.walker-dust{position:absolute;bottom:2px;width:7px;height:7px;border-radius:50%;background:color-mix(in srgb,var(--ink) 25%,transparent);opacity:0}
+.walker-dust.d1{left:6px}.walker-dust.d2{right:6px}
+
+.walker[data-walking="1"] .walker-figure{animation:w-bob .46s ease-in-out infinite}
+.walker[data-walking="1"] .w-leg-l{animation:w-swing .92s ease-in-out infinite}
+.walker[data-walking="1"] .w-leg-r{animation:w-swing .92s ease-in-out infinite reverse}
+.walker[data-walking="1"] .w-arm-l{animation:w-swing .92s ease-in-out infinite reverse}
+.walker[data-walking="1"] .w-arm-r{animation:w-swing .92s ease-in-out infinite}
+.walker[data-walking="1"] .walker-dust.d1{animation:w-dust .92s ease-out infinite}
+.walker[data-walking="1"] .walker-dust.d2{animation:w-dust .92s ease-out infinite .46s}
+.walker[data-walking="1"] .walker-head{animation:w-nod .46s ease-in-out infinite}
+.walker[data-wave="1"][data-walking="0"] .w-arm-r{animation:w-wave .7s ease-in-out infinite}
+
+@keyframes w-breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes w-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes w-swing{0%,100%{transform:rotate(-26deg)}50%{transform:rotate(26deg)}}
+@keyframes w-nod{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes w-dust{0%{opacity:.55;transform:translateY(0) scale(.6)}100%{opacity:0;transform:translateY(-10px) scale(1.6)}}
+@keyframes w-wave{0%,100%{transform:rotate(150deg)}50%{transform:rotate(185deg)}}
+
+/* keep the guide card clear of the walker */
+.journey-guide{bottom:166px}
+
+@media(max-width:700px){
+ .walker{transform-origin:left bottom;scale:.72}
+ .journey-guide{bottom:130px}
+ .about-photo{width:min(86%,320px);margin-inline:auto}
+ .ribbon-track{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ .portrait-photo-wrap,.portrait-breathe,.portrait-photo-alt,.portrait-orbit,.portrait-sticker,.portrait-cross,.ribbon-track,.about-photo-shine,.about-photo-tag{animation:none!important}
+ .walker{display:none}.journey-guide{bottom:24px}
+}

@@ -1,0 +1,10 @@
+name = "umar-sadiq-portfolio"
+compatibility_date = "2026-10-01"
+pages_build_output_dir = "./dist"
+
+# Cloudflare Pages frontend. The same-origin Pages Function proxies API requests
+# to the separately deployed Worker through the PORTFOLIO_API service binding.
+# Same-origin Pages Functions proxy to the API Worker.
+[[services]]
+binding = "PORTFOLIO_API"
+service = "umar-sadiq-portfolio-api"

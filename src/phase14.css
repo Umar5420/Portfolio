@@ -1,0 +1,299 @@
+/* Phase 14 — More alive: particles, typing role, floating chips, statement band, glow + shine effects */
+
+/* ---------- Ambient canvas + gradient top bar ---------- */
+.fx-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.fx-topbar{position:fixed;left:0;top:0;right:0;height:3px;z-index:60;pointer-events:none}
+.fx-topbar span{display:block;height:100%;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,var(--accent),#ffb199,var(--blue),var(--lime));box-shadow:0 0 14px color-mix(in srgb,var(--accent) 70%,transparent)}
+
+/* ---------- Typing role line ---------- */
+.role-line{display:flex;align-items:baseline;gap:.4em;margin:-6px 0 22px;font:600 clamp(16px,1.7vw,22px) Manrope;letter-spacing:-.03em;min-height:1.6em}
+.role-pre{color:var(--muted)}
+.role-word{background:linear-gradient(90deg,var(--accent),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre}
+.role-caret{display:inline-block;width:2px;height:1.1em;background:var(--accent);transform:translateY(.2em);animation:p14-caret 1s steps(1) infinite}
+@keyframes p14-caret{50%{opacity:0}}
+
+/* ---------- Shimmering hero accent word ---------- */
+.hero .headline-italic{background:linear-gradient(100deg,var(--accent) 0%,#ffb199 30%,var(--blue) 60%,var(--accent) 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:p14-shimmer 6s linear infinite}
+@keyframes p14-shimmer{to{background-position:-260% 0}}
+
+/* ---------- Floating tech chips around the portrait ---------- */
+.fx-chips{position:absolute;inset:0;pointer-events:none;z-index:4}
+.fx-chip{position:absolute;padding:9px 14px;border-radius:999px;font:600 11px 'DM Mono',monospace;letter-spacing:.04em;color:var(--ink);background:color-mix(in srgb,var(--paper) 78%,transparent);border:1px solid var(--line);backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.12),0 0 0 1px color-mix(in srgb,var(--accent) 12%,transparent);animation:p14-float 7s ease-in-out infinite}
+.fx-chip::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:8px;box-shadow:0 0 10px var(--accent)}
+.fx-chip.c1{top:22%;right:-2%;animation-delay:-1s}
+.fx-chip.c2{top:46%;left:-6%;animation-delay:-3s;animation-duration:8.5s}
+.fx-chip.c3{bottom:26%;right:-4%;animation-delay:-5s;animation-duration:6.5s}
+.fx-chip.c4{top:10%;left:12%;animation-delay:-2s;animation-duration:9s}
+.fx-chip.c5{bottom:12%;left:6%;animation-delay:-4s}
+.fx-chip.c6{top:62%;right:8%;animation-delay:-6s;animation-duration:7.5s}
+@keyframes p14-float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-16px) rotate(2deg)}}
+
+/* ---------- Primary button: moving shine + glow ---------- */
+.button-primary,.contact-button{position:relative;overflow:hidden;isolation:isolate}
+.button-primary::after,.contact-button::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-120%);animation:p14-btnshine 4.5s ease-in-out infinite}
+.button-primary:hover{box-shadow:0 14px 34px color-mix(in srgb,var(--accent) 45%,transparent)}
+.contact-button:hover{box-shadow:0 14px 34px rgba(233,90,60,.45)}
+@keyframes p14-btnshine{0%,55%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+
+/* ---------- Section dividers draw in ---------- */
+.section-top{position:relative}
+.section-top::after{content:"";position:absolute;left:0;top:-1px;width:100%;height:2px;background:linear-gradient(90deg,var(--accent),transparent 70%);transform:scaleX(var(--line-scale,0));transform-origin:0 50%;pointer-events:none}
+.section-kicker{position:relative}
+.section-kicker::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:10px;vertical-align:middle;animation:p14-pulse 2.4s ease-out infinite}
+@keyframes p14-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+
+/* ---------- Service cards: spotlight, tilt, icon spin ---------- */
+.service-card{transform-style:preserve-3d;will-change:transform;transition:background .3s,transform .25s ease-out,box-shadow .3s;overflow:hidden}
+.service-card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(360px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--accent) 22%,transparent),transparent 60%)}
+.service-card:hover::before{opacity:1}
+.service-card:hover{box-shadow:0 24px 50px rgba(0,0,0,.12)}
+.service-card-top svg{transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.service-card:hover .service-card-top svg{transform:rotate(360deg) scale(1.25)}
+.service-card .tag-row span{transition:transform .25s,background .25s,color .25s,border-color .25s}
+.service-card:hover .tag-row span{border-color:var(--accent);color:var(--ink)}
+.service-card:hover .tag-row span:nth-child(odd){transform:translateY(-3px)}
+
+/* ---------- Project cards: sweep highlight ---------- */
+.project-art::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-130%);transition:transform .9s cubic-bezier(.22,1,.36,1)}
+.project-card:hover .project-art::after{transform:translateX(130%)}
+
+/* ---------- Skills pills glow ---------- */
+.skills-cloud span:hover{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent),0 10px 26px color-mix(in srgb,var(--accent) 40%,transparent)}
+
+/* ---------- Statement band ---------- */
+.stmt-band{overflow:hidden;padding:60px 0 50px;position:relative;background:var(--bg)}
+.stmt-row{overflow:hidden;white-space:nowrap}
+.stmt-track{display:inline-flex;gap:.4em;will-change:transform;font:800 clamp(64px,13vw,200px)/1 Manrope;letter-spacing:-.07em}
+.stmt-track span{display:inline-flex;align-items:center;gap:.4em}
+.stmt-track i{font:400 .45em Georgia,serif;color:var(--accent);font-style:normal}
+.stmt-row.r1 .stmt-track{color:transparent;-webkit-text-stroke:1.5px var(--ink)}
+.stmt-row.r2 .stmt-track{background:linear-gradient(90deg,var(--accent),var(--blue),var(--accent));background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:p14-shimmer 9s linear infinite}
+
+/* ---------- Footer mega name ---------- */
+.mega-name{overflow:hidden;display:flex;justify-content:center;padding:30px 7.2vw 0;background:var(--bg);font:800 clamp(52px,14.6vw,260px)/.95 Manrope;letter-spacing:-.07em;white-space:nowrap;user-select:none}
+.mega-name span{display:inline-block;color:transparent;-webkit-text-stroke:1.5px var(--line);transition:color .35s,-webkit-text-stroke-color .35s,transform .35s}
+.mega-name span:hover{color:var(--accent);-webkit-text-stroke-color:var(--accent);transform:translateY(-10px) rotate(-3deg)}
+
+/* ---------- Click sparks ---------- */
+.fx-spark{position:fixed;width:7px;height:7px;border-radius:50%;pointer-events:none;z-index:300;transform:translate(-50%,-50%)}
+
+/* ---------- Mobile: calmer ---------- */
+@media(max-width:760px){
+  .fx-chip{font-size:9px;padding:7px 10px}
+  .fx-chip.c4,.fx-chip.c5,.fx-chip.c6{display:none}
+  .fx-chip.c2{left:-2%}
+  .stmt-band{padding:36px 0 30px}
+}
+
+/* ---------- Reduced motion: everything static ---------- */
+@media(prefers-reduced-motion:reduce){
+  .fx-canvas,.fx-chips{display:none}
+  .fx-topbar{display:none}
+  .role-caret,.hero .headline-italic,.button-primary::after,.contact-button::after,.section-kicker::before,.stmt-row.r2 .stmt-track{animation:none!important}
+  .section-top::after{transform:scaleX(1)}
+  .service-card,.service-card-top svg{transition:none}
+}
+
+/* =====================  Phase 14b — conversion sections  ===================== */
+
+/* How I work */
+.process-section{padding-top:110px;padding-bottom:110px;background:var(--bg)}
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.process-card{position:relative;overflow:hidden;padding:26px 24px 30px;border:1px solid var(--line);background:var(--paper);border-radius:var(--cms-radius,8px);min-height:230px;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s,border-color .35s}
+.process-card:hover{transform:translateY(-8px);border-color:var(--accent);box-shadow:0 22px 46px rgba(0,0,0,.12)}
+.process-num{font:800 54px/1 Manrope;letter-spacing:-.08em;color:transparent;-webkit-text-stroke:1.2px var(--accent);display:block;margin-bottom:26px;transition:color .3s}
+.process-card:hover .process-num{color:var(--accent)}
+.process-card h3{font:700 22px Manrope;letter-spacing:-.05em;margin:0 0 10px}
+.process-card p{font-size:12.5px;line-height:1.75;color:var(--muted);margin:0}
+.process-bar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:linear-gradient(90deg,var(--accent),var(--blue));transform:scaleX(0);transform-origin:0 50%;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.process-card:hover .process-bar{transform:scaleX(1)}
+.process-note{margin:30px 0 0;padding:18px 20px;border-left:3px solid var(--accent);background:var(--paper);font-size:13px;line-height:1.8;color:var(--muted);max-width:760px}
+.process-note b{color:var(--ink)}
+
+/* Also offered */
+.also-offered{margin-top:34px;padding-top:26px;border-top:1px dashed var(--line);display:flex;gap:28px;align-items:flex-start}
+.also-label{font:9px 'DM Mono',monospace;letter-spacing:1.4px;color:var(--accent);padding-top:6px;white-space:nowrap}
+.also-list{display:flex;flex-wrap:wrap;gap:12px;flex:1}
+.also-item{flex:1 1 220px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--cms-radius,8px);background:var(--bg);transition:transform .3s,border-color .3s}
+.also-item:hover{transform:translateY(-4px);border-color:var(--accent)}
+.also-item strong{display:block;font:700 14px Manrope;letter-spacing:-.03em}
+.also-item small{display:block;font-size:11px;line-height:1.6;color:var(--muted);margin-top:5px}
+
+/* Skills in groups (inside the dark skills section) */
+.skill-groups{display:grid;gap:22px;margin-top:6px}
+.skill-group{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:start;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.14)}
+.skill-group:last-child{border-bottom:0}
+.skill-group-name{font:9px 'DM Mono',monospace;letter-spacing:1.4px;color:#ff8766;text-transform:uppercase;padding-top:11px}
+.skill-chips{display:flex;flex-wrap:wrap;gap:8px}
+.skill-chip{border:1px solid rgba(255,255,255,.23);border-radius:40px;padding:10px 15px;font-size:11px;color:#f0ece6;transition:background .2s,border-color .2s,transform .2s,box-shadow .2s;cursor:default}
+.skill-chip:hover{background:var(--accent);border-color:var(--accent);transform:translateY(-3px) scale(1.04);box-shadow:0 10px 26px color-mix(in srgb,var(--accent) 45%,transparent)}
+
+/* FAQ */
+.faq-section{padding-top:100px;padding-bottom:110px;background:var(--paper)}
+.faq-list{max-width:860px}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 0;background:none;border:0;color:var(--ink);cursor:pointer;text-align:left;font:700 clamp(16px,1.8vw,21px) Manrope;letter-spacing:-.04em}
+.faq-q svg{flex:none;color:var(--accent);transition:transform .4s cubic-bezier(.22,1,.36,1)}
+.faq-item.open .faq-q svg{transform:rotate(135deg)}
+.faq-q:hover span{color:var(--accent)}
+.faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s cubic-bezier(.22,1,.36,1)}
+.faq-a>div{overflow:hidden}
+.faq-item.open .faq-a{grid-template-rows:1fr}
+.faq-a p{margin:0 0 24px;font-size:13.5px;line-height:1.85;color:var(--muted);max-width:680px}
+
+/* Contact helpers (contact section is always light) */
+.contact-extras{margin:0 0 28px;display:grid;gap:16px}
+.reply-promise{display:flex;align-items:center;gap:10px;margin:0;font:600 13px Manrope;color:#4a443f}
+.contact-quick{display:flex;flex-wrap:wrap;gap:12px}
+.quick-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 18px;border:1px solid rgba(0,0,0,.25);border-radius:999px;font:600 12px Manrope;color:#211e1c;background:rgba(255,255,255,.5);transition:transform .25s,background .25s,color .25s,border-color .25s}
+.quick-btn:hover{transform:translateY(-3px);background:#1c1b1a;color:#fff;border-color:#1c1b1a}
+.quick-btn.wa{background:#25d366;border-color:#25d366;color:#06361a}
+.quick-btn.wa:hover{background:#1ebe5a;color:#fff;border-color:#1ebe5a}
+.hero-actions{flex-wrap:wrap}
+
+@media(max-width:900px){
+  .process-grid{grid-template-columns:1fr 1fr}
+  .skill-group{grid-template-columns:1fr;gap:8px}
+  .skill-group-name{padding-top:0}
+  .also-offered{flex-direction:column;gap:12px}
+}
+@media(max-width:560px){.process-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.process-card,.process-bar,.faq-a,.faq-q svg,.also-item,.quick-btn,.skill-chip{transition:none}}
+
+
+/* =====================  Phase 14c — Digital animated background  ===================== */
+.fx-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+/* Content sits above the background layers */
+.app-shell>main,.app-shell>.mega-name,.app-shell>.site-footer{position:relative;z-index:1}
+
+/* Drifting aurora glow */
+.fx-aurora i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.26;will-change:transform}
+.fx-aurora i:nth-child(1){width:60vmax;height:60vmax;left:-18vmax;top:-20vmax;background:radial-gradient(circle,var(--accent),transparent 65%);animation:p14-drift1 28s ease-in-out infinite alternate}
+.fx-aurora i:nth-child(2){width:55vmax;height:55vmax;right:-20vmax;top:10vh;background:radial-gradient(circle,var(--blue),transparent 65%);animation:p14-drift2 34s ease-in-out infinite alternate;opacity:.22}
+.fx-aurora i:nth-child(3){width:50vmax;height:50vmax;left:20vw;bottom:-26vmax;background:radial-gradient(circle,var(--lav),transparent 65%);animation:p14-drift3 40s ease-in-out infinite alternate;opacity:.3}
+:root[data-theme="dark"] .fx-aurora i{opacity:.32}
+@keyframes p14-drift1{to{transform:translate(22vmax,14vmax) scale(1.2)}}
+@keyframes p14-drift2{to{transform:translate(-24vmax,18vmax) scale(.85)}}
+@keyframes p14-drift3{to{transform:translate(-18vmax,-14vmax) scale(1.25)}}
+
+/* Moving digital grid, faded toward the edges */
+.fx-grid{position:absolute;inset:0;background-image:linear-gradient(color-mix(in srgb,var(--ink) 9%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--ink) 9%,transparent) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse at 50% 45%,#000 10%,transparent 78%);mask-image:radial-gradient(ellipse at 50% 45%,#000 10%,transparent 78%);animation:p14-grid 14s linear infinite}
+@keyframes p14-grid{to{background-position:56px 56px,56px 56px}}
+
+/* A scan line sweeping down the screen */
+.fx-scan{position:absolute;left:0;right:0;top:-20%;height:18vh;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--accent) 14%,transparent),transparent);animation:p14-scan 9s linear infinite}
+@keyframes p14-scan{to{transform:translateY(130vh)}}
+
+/* Let the background show through the sections that used a solid fill */
+.app-shell .services-section,.app-shell .faq-section,.app-shell .phase10-testimonials{background:color-mix(in srgb,var(--paper) 74%,transparent)}
+.app-shell .skills-section{background:color-mix(in srgb,var(--ink) 93%,transparent)}
+.app-shell .contact-section{background:color-mix(in srgb,#e6e1d8 90%,transparent)}
+.app-shell .site-footer,.app-shell .phase10-section,.app-shell .stmt-band,.app-shell .mega-name,.app-shell .process-section{background:transparent}
+
+@media(max-width:760px){.fx-aurora i{filter:blur(60px)}.fx-scan{display:none}}
+@media(prefers-reduced-motion:reduce){.fx-aurora i,.fx-grid,.fx-scan{animation:none}.fx-scan{display:none}}
+
+/* =====================  Phase 15 — 3D hero, terminal, estimator, showcase  ===================== */
+
+/* ---------- 3D depth on the hero portrait (uses `translate`, so it stacks with existing animations) ---------- */
+.portrait-stage{--px:0;--py:0}
+.portrait-stage .portrait-arch{translate:calc(var(--px) * -22px) calc(var(--py) * -16px);transition:translate .35s ease-out}
+.portrait-stage .portrait-cut-layer{translate:calc(var(--px) * 10px) calc(var(--py) * 6px);transition:translate .3s ease-out}
+.portrait-stage .portrait-orbit{translate:calc(var(--px) * -34px) calc(var(--py) * -22px);transition:translate .5s ease-out}
+.portrait-stage .portrait-sticker{translate:calc(var(--px) * 30px) calc(var(--py) * 20px);transition:translate .35s ease-out}
+.portrait-stage .fx-chips{translate:calc(var(--px) * 46px) calc(var(--py) * 30px);transition:translate .4s ease-out}
+.portrait-stage .portrait-cross{translate:calc(var(--px) * 56px) calc(var(--py) * 36px);transition:translate .4s ease-out}
+.portrait-glare{position:absolute;inset:-6% -10%;pointer-events:none;z-index:5;border-radius:50%;background:radial-gradient(circle at calc(50% + var(--px) * 34%) calc(42% + var(--py) * 30%),rgba(255,255,255,.28),transparent 42%);mix-blend-mode:soft-light;opacity:.9}
+
+/* ---------- Hero terminal ---------- */
+.hero-term{max-width:500px;margin-top:30px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:color-mix(in srgb,#0d0f14 92%,transparent);box-shadow:0 18px 50px rgba(0,0,0,.22),0 0 0 1px color-mix(in srgb,var(--accent) 14%,transparent);font-family:'DM Mono',ui-monospace,monospace}
+.hero-term + .hero-meta{margin-top:34px}
+.term-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.08)}
+.term-bar i{width:10px;height:10px;border-radius:50%;background:#ff5f57}.term-bar i:nth-child(2){background:#febc2e}.term-bar i:nth-child(3){background:#28c840}
+.term-bar span{margin-left:8px;font-size:10px;letter-spacing:.04em;color:#8b92a0}
+.term-bar em{margin-left:auto;font-style:normal;font-size:9px;color:var(--accent);letter-spacing:.08em;animation:p14-caret 2s steps(1) infinite}
+.term-body{height:152px;overflow-y:auto;padding:12px 14px;font-size:12px;line-height:1.75;color:#cfd5e1;cursor:text;scrollbar-width:none}
+.term-body::-webkit-scrollbar{display:none}
+.term-line{white-space:pre-wrap;word-break:break-word}
+.term-line b{color:var(--accent);font-weight:500}
+.term-line.cmd{color:#fff}
+.term-line.out{color:#a9b1c1}
+.term-line.ok{color:#7ee787}
+.term-line.err{color:#ff8b8b}
+.term-prompt{display:flex;align-items:center;gap:0}
+.term-prompt b{margin-right:6px;flex:none}
+.term-prompt span{color:#fff;margin-right:1px}
+.term-prompt input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;font:inherit;caret-color:var(--accent);padding:0}
+.term-prompt input::placeholder{color:#5d6574}
+
+/* ---------- Estimator ---------- */
+.estimate-section{padding-top:100px;padding-bottom:110px;background:transparent}
+.est-card{position:relative;max-width:900px;padding:34px 36px 38px;border:1px solid var(--line);border-radius:var(--cms-radius,12px);background:color-mix(in srgb,var(--paper) 82%,transparent);backdrop-filter:blur(6px);box-shadow:0 30px 70px rgba(0,0,0,.1);overflow:hidden}
+.est-card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(120deg,var(--accent),transparent 40%,var(--blue));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.55;pointer-events:none}
+.est-progress{display:flex;gap:8px;margin-bottom:26px}
+.est-progress i{flex:1;height:4px;border-radius:4px;background:var(--line);transition:background .4s}
+.est-progress i.done{background:var(--accent)}
+.est-progress i.now{background:linear-gradient(90deg,var(--accent),var(--line))}
+.est-count{display:inline-flex;align-items:center;gap:6px;font:9px 'DM Mono',monospace;letter-spacing:1.4px;color:var(--accent)}
+.est-step h3{font:800 clamp(26px,3.4vw,40px)/1.05 Manrope;letter-spacing:-.06em;margin:12px 0 24px}
+.est-options{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.est-options button{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:17px 18px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:600 14px Manrope;text-align:left;cursor:pointer;transition:transform .25s,border-color .25s,background .25s,color .25s,box-shadow .25s}
+.est-options button svg{color:var(--accent);transition:transform .25s}
+.est-options button:hover,.est-options button.on{transform:translateY(-3px);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg));box-shadow:0 12px 28px color-mix(in srgb,var(--accent) 22%,transparent)}
+.est-options button:hover svg{transform:translate(3px,-3px)}
+.est-back{display:inline-flex;align-items:center;gap:7px;margin-top:20px;padding:0;background:none;border:0;color:var(--muted);font:600 12px Manrope;cursor:pointer}
+.est-back:hover{color:var(--accent)}
+.est-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0 0 26px}
+.est-summary div{padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.est-summary dt{font:9px 'DM Mono',monospace;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase}
+.est-summary dd{margin:6px 0 0;font:700 15px Manrope;letter-spacing:-.03em}
+.est-actions{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.est-actions .est-back{margin-top:0}
+.est-note{display:block;margin-top:16px;font-size:12px;color:var(--muted)}
+
+/* ---------- Horizontal showcase ---------- */
+.work-all-label{margin:36px 0 0;font:9px 'DM Mono',monospace;letter-spacing:1.4px;color:var(--accent);scroll-margin-top:100px}
+.showcase{position:relative;height:100vh;margin:30px -7.2vw 0;padding-top:82px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.showcase-head{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:0 7.2vw 22px;font:9px 'DM Mono',monospace;letter-spacing:1.4px;color:var(--muted);position:relative}
+.showcase-head span:first-child{color:var(--accent)}
+.showcase-bar{position:absolute;left:7.2vw;right:7.2vw;bottom:0;height:2px;background:var(--line)}
+.showcase-bar span{display:block;height:100%;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,var(--accent),var(--blue))}
+.showcase-track{display:flex;align-items:center;gap:3vw;width:max-content;padding:20px 7.2vw 30px;will-change:transform}
+.show-intro{flex:none;width:min(30vw,420px)}
+.show-intro h3{font:800 clamp(56px,8vw,120px)/.9 Manrope;letter-spacing:-.08em;margin:0 0 20px}
+.show-intro em{font-family:Georgia,serif;font-weight:400;color:var(--accent);letter-spacing:-.07em}
+.show-intro p{font:11px/1.8 'DM Mono',monospace;letter-spacing:1px;color:var(--muted);margin:0}
+.show-card{flex:none;width:min(62vw,860px);height:min(58vh,520px);display:grid;grid-template-columns:1.1fr .9fr;border:1px solid var(--line);border-radius:var(--cms-radius,12px);overflow:hidden;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(6px);transition:transform .45s cubic-bezier(.22,1,.36,1),box-shadow .45s,border-color .3s}
+.show-card:hover{transform:translateY(-10px) scale(1.01);border-color:var(--accent);box-shadow:0 34px 70px rgba(0,0,0,.2)}
+.show-art{position:relative;display:grid;place-items:center;overflow:hidden}
+.show-card.peach .show-art{background:#f1b7a2;color:#4d2d2a}.show-card.blue .show-art{background:#b7c6e8;color:#24375c}.show-card.lime .show-art{background:#d7e68c;color:#334019}.show-card.violet .show-art{background:#c7baf0;color:#3e315d}
+.show-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.22,1,.36,1)}
+.show-card:hover .show-art img{transform:scale(1.08)}
+.show-mono{font:800 clamp(90px,12vw,190px)/1 Manrope;letter-spacing:-.12em;text-shadow:8px 8px 0 rgba(255,255,255,.25);transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.show-card:hover .show-mono{transform:scale(1.12) rotate(-5deg)}
+.show-num{position:absolute;top:18px;left:20px;font:500 12px 'DM Mono',monospace;letter-spacing:1.2px;background:rgba(255,255,255,.55);color:#1c1b1a;padding:5px 9px;border-radius:20px}
+.show-info{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:30px 30px 28px}
+.show-type{font:9px 'DM Mono',monospace;letter-spacing:1.3px;color:var(--accent);text-transform:uppercase}
+.show-info h4{font:800 clamp(26px,2.8vw,40px)/1.02 Manrope;letter-spacing:-.06em;margin:0}
+.show-info p{font-size:13px;line-height:1.75;color:var(--muted);margin:0;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.show-tech{display:flex;flex-wrap:wrap;gap:6px}
+.show-tech i{font:normal 9px 'DM Mono',monospace;padding:5px 9px;border:1px solid var(--line);border-radius:20px;color:var(--muted)}
+.show-cta{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font:700 13px Manrope;color:var(--ink);transition:gap .3s,color .3s}
+.show-card:hover .show-cta{gap:14px;color:var(--accent)}
+.show-end{flex:none;width:240px;height:240px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;border:1px dashed var(--accent);color:var(--ink);font:700 16px/1.3 Manrope;letter-spacing:-.03em;margin-right:6vw;transition:background .3s,color .3s,transform .3s}
+.show-end svg{color:var(--accent);transition:transform .3s}
+.show-end:hover{background:var(--accent);color:#fff;transform:rotate(-6deg)}
+.show-end:hover svg{color:#fff;transform:translate(4px,-4px)}
+
+@media(max-width:760px){
+  .est-card{padding:24px 20px 28px}
+  .est-options,.est-summary{grid-template-columns:1fr}
+  .hero-term{max-width:100%}
+  .term-body{height:136px}
+}
+@media(prefers-reduced-motion:reduce){
+  .portrait-stage .portrait-arch,.portrait-stage .portrait-cut-layer,.portrait-stage .portrait-orbit,.portrait-stage .portrait-sticker,.portrait-stage .fx-chips,.portrait-stage .portrait-cross{translate:none;transition:none}
+  .portrait-glare{display:none}
+  .term-bar em{animation:none}
+  .est-options button,.show-card,.show-art img,.show-mono{transition:none}
+}

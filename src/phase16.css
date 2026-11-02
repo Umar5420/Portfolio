@@ -1,0 +1,69 @@
+/* Phase 16 — Teaching section + /cv page */
+
+/* ---------- Teaching section ---------- */
+.teach-section{padding-top:100px;padding-bottom:110px;background:transparent}
+.teach-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;margin-top:10px;align-items:start}
+.teach-methods{display:grid;gap:16px}
+.teach-card{position:relative;padding:26px 28px 28px 84px;border:1px solid var(--line);border-radius:var(--cms-radius,12px);background:color-mix(in srgb,var(--paper) 82%,transparent);backdrop-filter:blur(6px);transition:transform .35s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .35s}
+.teach-card:hover{transform:translateX(8px);border-color:var(--accent);box-shadow:0 18px 44px color-mix(in srgb,var(--accent) 18%,transparent)}
+.teach-card>span{position:absolute;left:26px;top:22px;font:800 38px/1 Manrope;letter-spacing:-.08em;color:transparent;-webkit-text-stroke:1.3px var(--accent)}
+.teach-card h3{font:800 clamp(20px,2vw,26px)/1.1 Manrope;letter-spacing:-.05em;margin:0 0 8px}
+.teach-card p{margin:0;font-size:14px;line-height:1.75;color:var(--muted)}
+.teach-side{padding:28px;border:1px solid var(--line);border-radius:var(--cms-radius,12px);background:color-mix(in srgb,var(--paper) 82%,transparent);backdrop-filter:blur(6px);position:relative;overflow:hidden}
+.teach-side::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(120deg,var(--accent),transparent 40%,var(--blue));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;pointer-events:none}
+.teach-now{display:flex;gap:16px;align-items:center;margin-bottom:26px}
+.teach-now svg{flex:none;color:var(--accent)}
+.teach-now small,.teach-label{display:block;font:9px 'DM Mono',monospace;letter-spacing:1.4px;color:var(--accent)}
+.teach-now strong{display:block;font:800 22px Manrope;letter-spacing:-.05em;margin:3px 0 2px}
+.teach-now em{font-style:normal;font-size:12px;color:var(--muted)}
+.teach-chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 28px}
+.teach-chips span{padding:7px 12px;border:1px solid var(--line);border-radius:999px;font:500 11px 'DM Mono',monospace;color:var(--ink);transition:border-color .25s,background .25s,transform .25s}
+.teach-chips span:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);transform:translateY(-3px)}
+.teach-actions{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+
+/* ---------- /cv page (always light paper, prints cleanly) ---------- */
+body.cv-mode{background:#e9e6e1!important}
+.cv-wrap{min-height:100vh;padding:28px 16px 60px;font-family:Manrope,system-ui,sans-serif;color:#1c1b1a}
+.cv-toolbar{max-width:820px;margin:0 auto 18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cv-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;border:1px solid #1c1b1a;background:#1c1b1a;color:#fff;font:700 13px Manrope;cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.cv-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.cv-btn.ghost{background:transparent;color:#1c1b1a}
+.cv-page{max-width:820px;margin:0 auto;padding:54px 58px 60px;background:#fff;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.14);border-top:6px solid #e95a3c;line-height:1.6;font-size:14px}
+.cv-head h1{font:800 clamp(36px,6vw,54px)/1 Manrope;letter-spacing:-.07em;margin:0}
+.cv-title{margin:8px 0 6px;font:700 17px Manrope;letter-spacing:-.03em;color:#e95a3c}
+.cv-contact{display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 0 6px;font:500 12px 'DM Mono',monospace;color:#5d5a56}
+.cv-contact a{color:inherit}
+.cv-page section{margin-top:26px}
+.cv-page h2{margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid #e4e0da;font:700 11px 'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:#1c1b1a}
+.cv-page p{margin:0}
+.cv-page ul{margin:6px 0 0;padding-left:18px}
+.cv-page li{margin:4px 0}
+.cv-job{margin-bottom:16px;break-inside:avoid}
+.cv-job-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.cv-job-head h3{margin:0;font:800 16px Manrope;letter-spacing:-.03em}
+.cv-job-head h3 span{font-weight:600;color:#5d5a56}
+.cv-job-head em{font:500 12px 'DM Mono',monospace;font-style:normal;color:#5d5a56}
+.cv-projects{list-style:none;padding:0!important}
+.cv-projects li{padding-left:14px;position:relative}
+.cv-projects li::before{content:"";position:absolute;left:0;top:.7em;width:5px;height:5px;border-radius:50%;background:#e95a3c}
+.cv-cols{display:grid;grid-template-columns:1.6fr 1fr;gap:0 36px}
+.cv-skill{margin:6px 0!important}
+
+@media(max-width:900px){.teach-grid{grid-template-columns:1fr}}
+@media(max-width:640px){
+  .teach-card{padding:74px 22px 24px}
+  .teach-card>span{left:22px;top:20px}
+  .cv-page{padding:34px 22px 40px}
+  .cv-cols{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){.teach-card,.teach-chips span,.cv-btn{transition:none}}
+
+@page{size:A4;margin:14mm}
+@media print{
+  body.cv-mode{background:#fff!important}
+  .cv-toolbar{display:none}
+  .cv-wrap{padding:0}
+  .cv-page{max-width:none;padding:0;box-shadow:none;border-radius:0;font-size:12px}
+  .cv-page section{break-inside:avoid-page}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
