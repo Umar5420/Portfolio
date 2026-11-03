@@ -5,7 +5,7 @@ import './admin.css'
 import { api } from './lib/api'
 
 const initial = {
-  profile: { name: 'Umar Sadiq', role: 'Software Engineer & Digital Creative', email: 'info@adsondigitals.com', location: 'Pakistan · Worldwide', intro: 'I build useful products, thoughtful experiences and bold digital identities.' },
+  profile: { name: 'Umar Sadiq', role: 'Software Engineer & Digital Creative', email: 'umarsadiq899@gmail.com', location: 'Pakistan · Worldwide', intro: 'I build useful products, thoughtful experiences and bold digital identities.' },
   projects: [], services: [], skills: []
 }
 

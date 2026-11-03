@@ -47,7 +47,12 @@ export default defineConfig({
       '/api': {
         target: 'http://127.0.0.1:8787',
         changeOrigin: true,
-        secure: false
+        secure: false,
+        // The API Worker rejects requests whose Origin differs from its own address (a CSRF guard).
+        // In local development the browser's Origin is http://localhost:5173, so present the Worker's own origin.
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => { if (proxyReq.getHeader('origin')) proxyReq.setHeader('origin', 'http://127.0.0.1:8787') })
+        }
       }
     }
   },

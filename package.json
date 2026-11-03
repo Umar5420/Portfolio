@@ -1,7 +1,7 @@
 {
   "name": "umar-sadiq-portfolio",
   "private": true,
-  "version": "18.0.0",
+  "version": "20.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

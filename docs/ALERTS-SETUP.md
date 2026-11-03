@@ -29,3 +29,8 @@ Alerts pass the visitor's name, email, phone and message through the service you
 
 ## Test
 Submit the form on your live site, then watch `npx wrangler tail --config wrangler.api.toml` for any "alert failed" lines.
+
+## Your values (phase 20)
+- `ALERT_EMAIL_TO` = `umarsadiq899@gmail.com`
+- `CALLMEBOT_PHONE` = `923430329837` (plus the `CALLMEBOT_APIKEY` you receive from CallMeBot)
+Until these secrets are set on the API Worker, the contact card's **WhatsApp** and **Email** buttons are the way to send a query straight to you: they open WhatsApp / your mail app with the visitor's message already written.

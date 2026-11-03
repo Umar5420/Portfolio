@@ -1,0 +1,64 @@
+/* Phase 20: night contact studio — glass flip card, colour-changing lamp, direct-send buttons */
+.app-shell .contact-section{--lamp:#ffb347;background:radial-gradient(70% 60% at 85% 10%,color-mix(in srgb,var(--lamp) 22%,transparent),transparent 70%),radial-gradient(60% 50% at 10% 90%,rgba(76,98,232,.22),transparent 70%),#0a0e1c;color:#eef2ff;transition:background .6s}
+.app-shell .contact-section .section-top{border-color:rgba(255,255,255,.16)}
+.app-shell .contact-section .section-kicker,.app-shell .contact-content h2 em,.app-shell .contact-content h2 span{color:var(--lamp);transition:color .5s}
+.app-shell .contact-section .section-side,.app-shell .contact-overline,.app-shell .contact-bottom{color:rgba(238,242,255,.62)}
+.app-shell .contact-content h2{color:#f4f6ff}
+.app-shell .contact-section .orb-one{background:radial-gradient(circle at 35% 35%,color-mix(in srgb,var(--lamp) 70%,#fff),var(--lamp) 50%,transparent 70%);opacity:.28;transition:background .6s}
+.app-shell .contact-section .orb-two{border-color:rgba(255,255,255,.14);box-shadow:0 0 0 35px rgba(255,255,255,.03),0 0 0 70px rgba(255,255,255,.02)}
+.app-shell .contact-section .contact-button{background:var(--lamp);color:#0a0e1c;font-weight:700;transition:background .5s,transform .25s}
+.app-shell .contact-section .contact-button:hover{background:#fff;color:#0a0e1c}
+.app-shell .contact-section .quick-btn{background:rgba(255,255,255,.07);color:#eef2ff;border-color:rgba(255,255,255,.2)}
+.app-shell .contact-section .reply-promise{color:rgba(238,242,255,.75)}
+
+.contact-studio{position:relative;width:min(100%,780px)}
+
+/* lamp */
+.lamp{position:absolute;right:-250px;top:-380px;width:200px;height:270px;padding:0;border:0;background:none;cursor:pointer;z-index:3;filter:drop-shadow(0 0 28px color-mix(in srgb,var(--lamp) 60%,transparent));transition:filter .5s}
+.lamp svg{overflow:visible;display:block}
+.lamp-cone{transition:opacity .4s;animation:p20-flicker 5s ease-in-out infinite}
+.lamp-bulb{filter:drop-shadow(0 0 8px currentColor)}
+.lamp-cord{transform-origin:140px 96px;animation:p20-sway 4.6s ease-in-out infinite}
+.lamp.is-pulled .lamp-cord{animation:p20-pull .45s ease-out}
+.lamp:focus-visible{outline:2px solid var(--lamp);outline-offset:6px;border-radius:12px}
+@keyframes p20-sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes p20-pull{0%{transform:translateY(0)}35%{transform:translateY(14px)}100%{transform:translateY(0)}}
+@keyframes p20-flicker{0%,100%{opacity:1}48%{opacity:.92}50%{opacity:.78}52%{opacity:.95}}
+
+/* tabs */
+.flip-tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);margin:0 0 18px;backdrop-filter:blur(10px)}
+.flip-tabs button{border:0;background:none;color:rgba(238,242,255,.7);padding:10px 18px;border-radius:999px;font:600 12px Manrope,sans-serif;cursor:pointer;transition:background .35s,color .35s}
+.flip-tabs button.on{background:var(--lamp);color:#0a0e1c}
+.flip-tabs button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+/* flip card */
+.flip-card{perspective:1800px}
+.flip-inner{display:grid;transform-style:preserve-3d;transition:transform .95s cubic-bezier(.22,1,.36,1)}
+.flip-card.is-flipped .flip-inner{transform:rotateY(180deg)}
+.flip-face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;padding:28px}
+.flip-back{transform:rotateY(180deg);display:flex;flex-direction:column;gap:14px;justify-content:center}
+.flip-back h3{font:800 30px Manrope;letter-spacing:-.05em;margin:0;color:#fff}
+.flip-back p{margin:0;color:rgba(238,242,255,.7);font-size:14px;line-height:1.6;max-width:420px}
+.glass{position:relative;background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.22);box-shadow:0 30px 70px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.3);-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);overflow:hidden}
+.glass::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(420px circle at var(--gx,30%) var(--gy,0%),color-mix(in srgb,var(--lamp) 24%,transparent),transparent 60%);opacity:.9;transition:opacity .3s}
+.glass>*{position:relative}
+.flip-face .inquiry-form{margin-top:0;width:100%}
+.flip-face .inquiry-success{margin-top:0}
+
+/* direct-send */
+.direct-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;color:rgba(238,242,255,.7);font-size:12px}
+.direct-pill{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.25);color:#eef2ff;font:600 12px Manrope,sans-serif;transition:background .3s,color .3s,transform .25s}
+.direct-pill:hover{background:#fff;color:#0a0e1c;transform:translateY(-2px)}
+.direct-pill.wa{border-color:#25d366;color:#7dffb0}
+.direct-pill.wa:hover{background:#25d366;color:#04210f}
+.direct-grid{display:grid;gap:10px;margin-top:6px}
+.direct-tile{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:12px;padding:15px 18px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#fff;transition:background .3s,transform .25s,border-color .3s}
+.direct-tile b{font:700 15px Manrope}
+.direct-tile span{color:rgba(238,242,255,.65);font-size:13px;word-break:break-all}
+.direct-tile:hover{background:rgba(255,255,255,.14);transform:translateX(6px);border-color:var(--lamp)}
+.direct-tile.wa:hover{border-color:#25d366}
+.flip-back-btn{align-self:flex-start;display:inline-flex;gap:8px;align-items:center;border:0;background:none;color:var(--lamp);font:600 12px Manrope;cursor:pointer;padding:6px 0;text-decoration:underline}
+
+@media(max-width:1280px){.lamp{right:-60px;top:-250px;scale:.75;transform-origin:top right}}
+@media(max-width:900px){.lamp{display:none}.flip-face{padding:20px}.direct-tile{grid-template-columns:auto 1fr auto}.direct-tile span{grid-column:2/3;grid-row:2}}
+@media(prefers-reduced-motion:reduce){.lamp-cone,.lamp-cord,.lamp.is-pulled .lamp-cord{animation:none!important}.flip-inner{transition:none}}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowDown, ArrowUpRight, Asterisk, Code2, Layers3, Palette, Megaphone, Search, Smartphone, Globe2, Moon, Sun, Menu, X, Linkedin, Mail, MoveUpRight, Sparkles, ChevronDown, Bot, Command } from 'lucide-react'
+import { MessageCircle, ArrowDown, ArrowUpRight, Asterisk, Code2, Layers3, Palette, Megaphone, Search, Smartphone, Globe2, Moon, Sun, Menu, X, Linkedin, Mail, MoveUpRight, Sparkles, ChevronDown, Bot, Command } from 'lucide-react'
 import { usePreferences } from './lib/preferences'
 import ThemeStudio from './components/ThemeStudio'
 import Greeting from './components/Greeting'
@@ -17,6 +17,8 @@ import { SkillOrbit } from './components/SkillOrbit'
 import { AvailabilityBadge, availabilityInfo } from './components/Availability'
 import { Tilt, Laptop, Shot } from './components/DeviceFrame'
 import { api } from './lib/api'
+import { SITE } from './siteConfig'
+import { ContactStudio } from './components/ContactStudio'
 import { PortfolioExtras } from './components/PortfolioExtras'
 import './extras.css'
 import { gsap } from 'gsap'
@@ -46,7 +48,7 @@ const fallbackSkills = ['React.js', 'Next.js', 'JavaScript', 'HTML & CSS', 'Tail
 const fallbackProfile = {
   name: 'Umar Sadiq',
   role: 'Software Engineer & CS Instructor',
-  email: 'info@adsondigitals.com',
+  email: 'umarsadiq899@gmail.com',
   location: 'Pakistan · Worldwide',
   availability: 'open',
   availabilityNote: '',
@@ -353,7 +355,7 @@ function App() {
     const person = {
       '@context': 'https://schema.org', '@type': 'Person', name: profile.name || 'Umar Sadiq',
       jobTitle: profile.role || 'Software Engineer', description: profile.intro || 'Software engineer and digital creative.',
-      email: profile.email ? `mailto:${profile.email}` : undefined,
+      email: (SITE.email || profile.email) ? `mailto:${SITE.email || profile.email}` : undefined,
       image: `${window.location.origin}/images/umar-portrait.webp`,
       sameAs: ['https://www.linkedin.com/in/umar-sadiq-a6009122b/'],
       url: window.location.origin
@@ -593,7 +595,7 @@ function App() {
         <div className="contact-orb orb-one"/><div className="contact-orb orb-two"/>
         <img className="contact-figure" src="/images/cut-hand.webp" alt="" aria-hidden="true" width="814" height="1100" loading="lazy" decoding="async"/>
         <div className="section-top"><span className="section-kicker">{num('contact')} / YOUR TURN</span><span className="section-side">HAVE AN IDEA? LET'S MAKE IT REAL.</span></div>
-        <div className="contact-content"><span className="contact-overline">{availabilityInfo(profile)?.key === 'busy' ? 'CURRENTLY FULLY BOOKED' : 'OPEN TO NEW PROJECTS'}</span><h2>Let's make<br/><em>something</em><br/>matter<span>.</span></h2><ContactExtras/><InquiryForm prefill={prefill} /><div className="contact-bottom"><a href={`mailto:${profile.email}`}><Mail size={16}/> {profile.email}</a><a href="https://www.linkedin.com/in/umar-sadiq-a6009122b/" target="_blank" rel="noreferrer"><Linkedin size={16}/> LinkedIn <ArrowUpRight size={13}/></a></div></div>
+        <div className="contact-content"><span className="contact-overline">{availabilityInfo(profile)?.key === 'busy' ? 'CURRENTLY FULLY BOOKED' : 'OPEN TO NEW PROJECTS'}</span><h2>Let's make<br/><em>something</em><br/>matter<span>.</span></h2><ContactStudio><InquiryForm prefill={prefill} /></ContactStudio><div className="contact-bottom"><a href={`mailto:${SITE.email || profile.email}`}><Mail size={16}/> {SITE.email || profile.email}</a><a href="https://www.linkedin.com/in/umar-sadiq-a6009122b/" target="_blank" rel="noreferrer"><Linkedin size={16}/> LinkedIn <ArrowUpRight size={13}/></a></div></div>
       </section>
     </main>
     <PortfolioExtras profile={profile} onCoachingSelect={(message) => { setPrefill({ service: 'Other', budget: '', message, ts: Date.now() }); setTimeout(() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }), 60) }}/>
@@ -603,16 +605,31 @@ function App() {
 }
 
 
+function directText(f){
+  const lines=[`Hi Umar, I'm ${f.name.trim()||'(name)'}.`]
+  if(f.service) lines.push(`I'm interested in: ${f.service}.`)
+  if(f.budget) lines.push(`Budget: ${f.budget}.`)
+  lines.push('', f.message.trim())
+  const reach=[f.email&&`Email: ${f.email}`, f.phone&&`Phone: ${f.phone}`].filter(Boolean)
+  if(reach.length) lines.push('', reach.join(' | '))
+  return lines.join('\n')
+}
+
 function InquiryForm({ prefill }) {
   const [form,setForm]=useState({name:'',email:'',phone:'',service:'',budget:'',message:'',website:''})
   const [state,setState]=useState('idle'); const [error,setError]=useState('')
   useEffect(()=>{ if(prefill) setForm(f=>({...f,service:prefill.service||f.service,budget:prefill.budget||'',message:prefill.message||f.message})) },[prefill])
   const change=e=>setForm(f=>({...f,[e.target.name]:e.target.value}))
+  const guardDirect=e=>{ if(!form.name.trim()||form.message.trim().length<10){ e.preventDefault(); setError('Add your name and a short message first, then choose WhatsApp or email.') } else setError('') }
   const submit=async e=>{e.preventDefault();setState('sending');setError('');try{await api.submitInquiry(form);setState('sent');setForm({name:'',email:'',phone:'',service:'',budget:'',message:'',website:''})}catch(err){setState('idle');setError(err.message||'Unable to send your inquiry. Please try again.')}}
   if(state==='sent')return <div className="inquiry-success" role="status"><strong>Thank you — your message is on its way.</strong><span>Your inquiry has been received. I’ll review the details and get back to you.</span><button type="button" onClick={()=>setState('idle')}>Send another inquiry</button></div>
   return <form className="inquiry-form" onSubmit={submit}>
     <div className="inquiry-fields"><label>Your name<input name="name" value={form.name} onChange={change} minLength="2" maxLength="100" autoComplete="name" required placeholder="Name"/></label><label>Email address<input type="email" name="email" value={form.email} onChange={change} maxLength="160" autoComplete="email" required placeholder="you@example.com"/></label><label>Phone / WhatsApp <span>(optional)</span><input name="phone" value={form.phone} onChange={change} maxLength="50" autoComplete="tel" placeholder="+92…"/></label><label>What do you need? <span>(optional)</span><select name="service" value={form.service} onChange={change}><option value="">Choose a service</option>{['Website / Web App','Mobile Application','CRM / ERP / Business System','UI/UX or Graphic Design','Digital Marketing / Ads','Python / Automation / AI','SEO','Other'].map(x=><option key={x}>{x}</option>)}</select></label><label>Estimated budget <span>(optional)</span><select name="budget" value={form.budget} onChange={change}><option value="">Prefer to discuss</option>{['Under $250','$250–$500','$500–$1,000','$1,000–$3,000','$3,000+'].map(x=><option key={x}>{x}</option>)}</select></label><label className="inquiry-message">Tell me about your project<textarea name="message" value={form.message} onChange={change} minLength="10" maxLength="5000" required rows="4" placeholder="A few details about your goals, timeline or requirements…"/></label></div>
-    <input className="inquiry-honeypot" name="website" value={form.website} onChange={change} tabIndex="-1" autoComplete="off" aria-hidden="true"/><button className="contact-button" type="submit" disabled={state==='sending'}>{state==='sending'?'Sending…':'Send project inquiry'} <ArrowUpRight size={20}/></button>{error&&<p className="inquiry-error" role="alert">{error}</p>}
+    <input className="inquiry-honeypot" name="website" value={form.website} onChange={change} tabIndex="-1" autoComplete="off" aria-hidden="true"/><button className="contact-button" type="submit" disabled={state==='sending'}>{state==='sending'?'Sending…':'Send project inquiry'} <ArrowUpRight size={20}/></button>
+    <div className="direct-row"><span>Or send this straight to me:</span>
+      {SITE.whatsapp&&<a className="direct-pill wa" href={`https://wa.me/${SITE.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(directText(form))}`} target="_blank" rel="noreferrer" onClick={guardDirect}><MessageCircle size={15}/> WhatsApp</a>}
+      {SITE.email&&<a className="direct-pill" href={`mailto:${SITE.email}?subject=${encodeURIComponent('Project enquiry'+(form.service?': '+form.service:''))}&body=${encodeURIComponent(directText(form))}`} onClick={guardDirect}><Mail size={15}/> Email</a>}
+    </div>{error&&<p className="inquiry-error" role="alert">{error}</p>}
   </form>
 }
 

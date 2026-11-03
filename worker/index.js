@@ -17,7 +17,7 @@ function cookieValue(request, name) { const raw=request.headers.get('Cookie')||'
 function sessionCookie(value,maxAge=604800,secure=true) { return `portfolio_session=${encodeURIComponent(value)}; Path=/; HttpOnly; ${secure?'Secure; ':''}SameSite=Strict; Max-Age=${maxAge}`; }
 async function authenticated(request,env) { const token=cookieValue(request,'portfolio_session'); if(!token)return false; const row=await env.DB.prepare('SELECT token_hash FROM sessions WHERE token_hash=? AND expires_at > ?').bind(await sha(token),Math.floor(Date.now()/1000)).first(); return !!row; }
 async function requireAuth(request,env) { return await authenticated(request,env)?null:json({error:'Unauthorized'},401); }
-async function readContent(env) { const row=await env.DB.prepare('SELECT content_json FROM portfolio_content WHERE id=1').first(); if(row?.content_json){try{return JSON.parse(row.content_json)}catch{}} return {profile:{name:'Umar Sadiq',role:'Software Engineer & Digital Creative',email:'info@adsondigitals.com',location:'Pakistan · Worldwide',intro:'I build useful products, thoughtful experiences and bold digital identities.'},projects:[],services:[],skills:[]}; }
+async function readContent(env) { const row=await env.DB.prepare('SELECT content_json FROM portfolio_content WHERE id=1').first(); if(row?.content_json){try{return JSON.parse(row.content_json)}catch{}} return {profile:{name:'Umar Sadiq',role:'Software Engineer & Digital Creative',email:'umarsadiq899@gmail.com',location:'Pakistan · Worldwide',intro:'I build useful products, thoughtful experiences and bold digital identities.'},projects:[],services:[],skills:[]}; }
 function publicContent(content) {
  const pick=(obj,keys)=>Object.fromEntries(keys.filter(k=>obj?.[k]!==undefined).map(k=>[k,obj[k]]));
  const visible=(item)=>item&& !['Draft','Hidden','Private'].includes(item.status);
@@ -43,26 +43,9 @@ async function readJson(request,maxBytes=50000) {
  try { return JSON.parse(raw); } catch { throw new Error('INVALID_JSON'); }
 }
 function originAllowed(request) {
-  const origin = request.headers.get('Origin');
-
-  if (!origin) {
-    return request.headers.get('Sec-Fetch-Site') !== 'cross-site';
-  }
-
-  try {
-    const url = new URL(request.url);
-    const allowedOrigins = [
-      url.origin,
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-      'http://localhost:8787',
-      'http://127.0.0.1:8787'
-    ];
-
-    return allowedOrigins.includes(origin);
-  } catch {
-    return false;
-  }
+ const origin=request.headers.get('Origin');
+ if(origin && origin!==new URL(request.url).origin) return false;
+ return request.headers.get('Sec-Fetch-Site')!=='cross-site';
 }
 function clean(value,max=2000){return typeof value==='string'?value.trim().slice(0,max):''}
 const oneLine=(v,n)=>String(v||'').replace(/[\r\n\t]+/g,' ').slice(0,n);

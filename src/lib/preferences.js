@@ -78,7 +78,7 @@ function applyToDom({ mood, style, ambient, visual = 'futuristic', motion = 'imm
 }
 
 export function usePreferences() {
-  const [mood, setMoodState] = useState(() => read(KEYS.mood, 'light', [...MOOD_IDS, 'auto']))
+  const [mood, setMoodState] = useState(() => read(KEYS.mood, 'dark', [...MOOD_IDS, 'auto']))
   const [style, setStyleState] = useState(() => read(KEYS.style, 'classic', STYLE_IDS))
   const [ambient, setAmbientState] = useState(() => read(KEYS.ambient, 'on') !== 'off')
   const [visual, setVisualState] = useState(() => read(KEYS.visual, 'futuristic', VISUAL_DIRECTIONS.map(x => x.id)))
@@ -124,7 +124,7 @@ export function usePreferences() {
   const setAmbient = useCallback((value) => setAmbientState(value), [])
   const setVisual = useCallback((value) => setVisualState(value), [])
   const setMotion = useCallback((value) => setMotionState(value), [])
-  const reset = useCallback((event) => withReveal(event, { mood: 'light', style: 'classic', ambient: true, visual: 'futuristic', motion: 'immersive' }, () => { setMoodState('light'); setStyleState('classic'); setAmbientState(true); setVisualState('futuristic'); setMotionState('immersive') }), [withReveal])
+  const reset = useCallback((event) => withReveal(event, { mood: 'dark', style: 'classic', ambient: true, visual: 'futuristic', motion: 'immersive' }, () => { setMoodState('dark'); setStyleState('classic'); setAmbientState(true); setVisualState('futuristic'); setMotionState('immersive') }), [withReveal])
 
   const resolved = resolveMood(mood)
   const isDark = !!MOODS.find(m => m.id === resolved)?.dark
